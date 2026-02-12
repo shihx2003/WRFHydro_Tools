@@ -482,6 +482,19 @@ def varmaxmin(ds: xr.Dataset,
         })
 
     return pd.DataFrame.from_records(records)
+
+def get_lonlat_range(geo_em_ds):
+    lon_min = geo_em_ds['lon'].min().item() - 1.0
+    lon_max = geo_em_ds['lon'].max().item() + 1.0
+    lat_min = geo_em_ds['lat'].min().item() - 1.0
+    lat_max = geo_em_ds['lat'].max().item() + 1.0
+
+    print(f"Longitude range: {lon_min} to {lon_max}")
+    print(f"Latitude range: {lat_min} to {lat_max}")
+
+    return lon_min, lon_max, lat_min, lat_max
+
+
 def main():
     diag_list = []
     for mon in [202305,202306,202307,202308,202309]:
@@ -494,8 +507,7 @@ def main():
 
         csv_path = f"./diagnostics.csv"
 
-        lon_min, lon_max = 110.0, 118.0
-        lat_min, lat_max = 36.0, 42.0
+        lon_min, lon_min, lon_max, lat_min, lat_max = get_lonlat_range(ldasin_path)
 
         cmfd_ds = open_cmfd_month(cmfd_dir, mon)
         cmfd_ds = cmfd_ds.sel(
