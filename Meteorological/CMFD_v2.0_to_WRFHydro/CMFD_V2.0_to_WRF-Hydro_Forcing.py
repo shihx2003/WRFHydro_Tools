@@ -483,11 +483,12 @@ def varmaxmin(ds: xr.Dataset,
 
     return pd.DataFrame.from_records(records)
 
-def get_lonlat_range(geo_em_ds):
-    lon_min = geo_em_ds['lon'].min().item() - 1.0
-    lon_max = geo_em_ds['lon'].max().item() + 1.0
-    lat_min = geo_em_ds['lat'].min().item() - 1.0
-    lat_max = geo_em_ds['lat'].max().item() + 1.0
+def get_lonlat_range(ldasin_path):
+    ldasin_ds = xr.open_dataset(ldasin_path)
+    lon_min = ldasin_ds['lon'].min().item() - 1.0
+    lon_max = ldasin_ds['lon'].max().item() + 1.0
+    lat_min = ldasin_ds['lat'].min().item() - 1.0
+    lat_max = ldasin_ds['lat'].max().item() + 1.0
 
     print(f"Longitude range: {lon_min} to {lon_max}")
     print(f"Latitude range: {lat_min} to {lat_max}")
