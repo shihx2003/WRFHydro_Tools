@@ -508,7 +508,7 @@ def main():
 
         csv_path = f"./diagnostics.csv"
 
-        lon_min, lon_min, lon_max, lat_min, lat_max = get_lonlat_range(ldasin_path)
+        lon_min, lon_max, lat_min, lat_max = get_lonlat_range(ldasin_path)
 
         cmfd_ds = open_cmfd_month(cmfd_dir, mon)
         cmfd_ds = cmfd_ds.sel(
