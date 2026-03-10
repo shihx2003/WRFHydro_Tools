@@ -5,6 +5,9 @@
 @Author  :   shihx2003
 @Version :   1.0
 @Contact :   shihx2003@outlook.com
+
+@Useage:
+    python CMFD_V2.0_to_WRF-Hydro_Forcing.py 2023
 '''
 
 # here put the import lib
@@ -15,6 +18,7 @@ import pandas as pd
 import os
 from joblib import Parallel, delayed
 import csv
+import sys
 
 def open_cmfd_month(cmfd_dir, mon):
     SRad_path = f"{cmfd_dir}/SRad/srad_CMFD_V0200_B-01_03hr_010deg_{mon:06d}.nc"
@@ -483,32 +487,38 @@ def varmaxmin(ds: xr.Dataset,
 
     return pd.DataFrame.from_records(records)
 
-def get_lonlat_range(ldasin_path):
-    ldasin_ds = xr.open_dataset(ldasin_path)
-    lon_min = ldasin_ds['lon'].min().item() - 1.0
-    lon_max = ldasin_ds['lon'].max().item() + 1.0
-    lat_min = ldasin_ds['lat'].min().item() - 1.0
-    lat_max = ldasin_ds['lat'].max().item() + 1.0
-
-    print(f"Longitude range: {lon_min} to {lon_max}")
-    print(f"Latitude range: {lat_min} to {lat_max}")
-
-    return lon_min, lon_max, lat_min, lat_max
-
+def get_year():
+    if len(sys.argv) > 1:
+        try:
+            year = int(sys.argv[1])
+        except ValueError:
+            print("year must be an integer")
+            sys.exit(1)
+    else:
+        print("Please provide a year argument")
+        sys.exit(1)
+    
+    return year
 
 def main():
+    year = get_year()
     diag_list = []
-    for mon in [202305,202306,202307,202308,202309]:
+    for mon in [f"{year:04d}01", f"{year:04d}02", f"{year:04d}03", 
+                f"{year:04d}04", f"{year:04d}05", f"{year:04d}06", 
+                f"{year:04d}07", f"{year:04d}08", f"{year:04d}09", 
+                f"{year:04d}10", f"{year:04d}11", f"{year:04d}12"]:
+        mon = int(mon)
         cmfd_var_names = ["SRad", "LRad", "SHum", "Temp", "Pres", "Wind", "Prec"]
         ldasin_var_names = ["SWDOWN", "LWDOWN", "Q2D", "T2D", "PSFC", "U2D", "V2D", "RAINRATE"]
-        cmfd_dir   = "./CMFD_V2.0_Data_forcing_03hr_010deg"         # SRad/srad_CMFD_V0200_B-01_03hr_010deg_202305.nc
+        cmfd_dir   = "/home/Shihuaixuan/Data/CMFD_V2.0_Data_forcing_03hr_010deg"         # SRad/srad_CMFD_V0200_B-01_03hr_010deg_202305.nc
         ldasin_path = "./Zijinguan.LDASIN_DOMAIN3"
 
-        outdir = "./To_WRF-Hydro_Forcing_CMFD_1h"
+        outdir = "./HRLDAS-hr"
 
         csv_path = f"./diagnostics.csv"
 
-        lon_min, lon_max, lat_min, lat_max = get_lonlat_range(ldasin_path)
+        lon_min, lon_max = 110.0, 118.0
+        lat_min, lat_max = 36.0, 42.0
 
         cmfd_ds = open_cmfd_month(cmfd_dir, mon)
         cmfd_ds = cmfd_ds.sel(
